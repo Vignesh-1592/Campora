@@ -5,10 +5,9 @@ const bcrypt = require("bcryptjs");
 exports.registerUser = async (req, res) => {
     try {
 
-        // Get data from request body
         const { name, registerNumber, email, phone, password, role } = req.body;
 
-        // Check whether email already exists
+        // Check if email already exists
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
@@ -17,7 +16,7 @@ exports.registerUser = async (req, res) => {
             });
         }
 
-        // Hash the password
+        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create new user
@@ -30,10 +29,8 @@ exports.registerUser = async (req, res) => {
             role,
         });
 
-        // Save user
         await user.save();
 
-        // Success response
         return res.status(201).json({
             message: "User Registered Successfully",
             user,
@@ -46,5 +43,48 @@ exports.registerUser = async (req, res) => {
         return res.status(500).json({
             message: "Internal Server Error"
         });
+
     }
+};
+
+// Login User
+exports.loginUser = async (req, res) => {
+
+    try {
+
+        const { email, password } = req.body;
+
+        // Find user by email
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        // Compare password
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Invalid Password"
+            });
+        }
+
+        return res.status(200).json({
+            message: "Login Successful",
+            user
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+
+    }
+
 };

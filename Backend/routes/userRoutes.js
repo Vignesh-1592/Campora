@@ -1,8 +1,15 @@
-const express = require("express"); // Imports the Express library.
-const router = express.Router(); // Creates a Router.
+const express = require("express");
+const router = express.Router();
 
-const { registerUser } = require("../controllers/userController");
+const {
+    registerUser,
+    loginUser,
+} = require("../controllers/userController");
 
+// Register
 router.post("/register", registerUser);
+
+// Login
+router.post("/login", loginUser);
 
 module.exports = router;
