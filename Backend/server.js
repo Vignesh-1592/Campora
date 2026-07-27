@@ -6,8 +6,9 @@ const dotenv = require("dotenv");
 // Import database connection
 const connectDB = require("./config/db");
 
-// Import user routes
+// Import routes
 const userRoutes = require("./routes/userRoutes");
+const foodRoutes = require("./routes/foodRoutes");
 
 // Load environment variables from .env file
 dotenv.config();
@@ -19,16 +20,23 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());              // Allow requests from frontend
-app.use(express.json());      // Read JSON data from request body
+app.use(cors());             // Allow requests from frontend
+app.use(express.json());     // Read JSON data from request body
 
 // Default Route
 app.get("/", (req, res) => {
     res.send("🚀 Campora Backend Running Successfully!");
 });
 
+// ===============================
+// Routes
+// ===============================
+
 // User Routes
 app.use("/api/users", userRoutes);
+
+// Food Routes
+app.use("/api/food", foodRoutes);
 
 // Server Port
 const PORT = process.env.PORT || 5000;
