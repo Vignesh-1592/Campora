@@ -1,7 +1,10 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
+// ===============================
 // Register User
+// ===============================
 exports.registerUser = async (req, res) => {
     try {
 
@@ -47,7 +50,9 @@ exports.registerUser = async (req, res) => {
     }
 };
 
+// ===============================
 // Login User
+// ===============================
 exports.loginUser = async (req, res) => {
 
     try {
@@ -72,10 +77,54 @@ exports.loginUser = async (req, res) => {
             });
         }
 
+        // Generate JWT Token
+        const token = jwt.sign(
+            {
+                id: user._id,
+                role: user.role,
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "7d",
+            }
+        );
+
+        // Login Success Response
         return res.status(200).json({
             message: "Login Successful",
-            user
+            token,
+            user: {
+                _id: user._id,
+                name: user.name,
+                registerNumber: user.registerNumber,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+            },
         });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+
+    }
+
+};
+
+// ===============================
+// Get User Profile
+// ===============================
+exports.getUserProfile = async (req, res) => {
+
+    try {
+
+        const user = await User.findById(req.user.id).select("-password");
+
+        return res.status(200).json(user);
 
     } catch (error) {
 
