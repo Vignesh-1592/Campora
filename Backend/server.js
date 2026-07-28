@@ -11,6 +11,8 @@ const userRoutes = require("./routes/userRoutes");
 const foodRoutes = require("./routes/foodRoutes");
 const stationeryRoutes = require("./routes/stationeryRoutes");
 const bookRoutes = require("./routes/bookRoutes");
+const printRoutes = require("./routes/printRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 // Load environment variables from .env file
 dotenv.config();
@@ -45,6 +47,11 @@ app.use("/api/stationery", stationeryRoutes);
 
 // Book Routes
 app.use("/api/books", bookRoutes);
+
+// Print Routes
+app.use("/api/print", printRoutes);
+
+app.use("/api/notifications", notificationRoutes);
 
 // Server Port
 const PORT = process.env.PORT || 5000;
