@@ -9,6 +9,7 @@ const connectDB = require("./config/db");
 // Import routes
 const userRoutes = require("./routes/userRoutes");
 const foodRoutes = require("./routes/foodRoutes");
+const stationeryRoutes = require("./routes/stationeryRoutes");
 
 // Load environment variables from .env file
 dotenv.config();
@@ -37,6 +38,9 @@ app.use("/api/users", userRoutes);
 
 // Food Routes
 app.use("/api/food", foodRoutes);
+
+// Stationery Routes
+app.use("/api/stationery", stationeryRoutes);
 
 // Server Port
 const PORT = process.env.PORT || 5000;
