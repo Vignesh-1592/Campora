@@ -9,9 +9,11 @@ const {
     printDocument
 } = require("../controllers/printController");
 
-const { verifyToken } = require("../middleware/authMiddleware");
+const verifyToken = require("../middleware/authMiddleware");
 
+// ===============================
 // Add Print Request
+// ===============================
 router.post("/add", verifyToken, addPrintRequest);
 
 // ===============================
@@ -19,8 +21,19 @@ router.post("/add", verifyToken, addPrintRequest);
 // ===============================
 router.get("/", verifyToken, getAllPrintRequests);
 
+// ===============================
+// Update Print Request
+// ===============================
 router.put("/update/:id", verifyToken, updatePrintRequest);
+
+// ===============================
+// Delete Print Request
+// ===============================
 router.delete("/delete/:id", verifyToken, deletePrintRequest);
+
+// ===============================
 // Staff Prints Document
+// ===============================
 router.put("/print/:id", verifyToken, printDocument);
+
 module.exports = router;

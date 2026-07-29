@@ -7,7 +7,7 @@ const {
     getUserProfile,
 } = require("../controllers/userController");
 
-const { verifyToken } = require("../middleware/authMiddleware");
+const verifyToken = require("../middleware/authMiddleware");
 
 // Register
 router.post("/register", registerUser);
