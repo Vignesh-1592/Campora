@@ -1,18 +1,12 @@
-const mongoose = require("mongoose"); //This imports Mongoose so we can create schemas and interact with MongoDB.
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    // Common Fields
     name: {
       type: String,
       required: true,
       trim: true,
-    },
-
-    registerNumber: {
-      type: String,
-      required: true,
-      unique: true,
-      uppercase: true,
     },
 
     email: {
@@ -32,9 +26,42 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Student Only
+    rollNumber: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
+    year: {
+      type: String,
+      enum: ["I", "II", "III", "IV"],
+    },
+
+    // Department
+    department: {
+      type: String,
+      required: true,
+    },
+
+    // Staff Only
+    employeeId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
+    // Admin Only
+    adminId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
+    // User Role
     role: {
       type: String,
-      enum: ["student", "admin","faculty","HOD","principal","admin","superadmin","examcell",],
+      enum: ["student", "staff", "admin", "superadmin"],
       default: "student",
     },
   },
