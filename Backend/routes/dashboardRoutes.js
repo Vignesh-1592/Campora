@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const { getStaffDashboard } = require("../controllers/dashboardController");
+const {
+    getStaffDashboard,
+    getStudentDashboard
+} = require("../controllers/dashboardController");
 
 const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
@@ -14,6 +17,16 @@ router.get(
     verifyToken,
     authorizeRoles("staff", "admin"),
     getStaffDashboard
+);
+
+// ======================================
+// Student Dashboard
+// ======================================
+router.get(
+    "/student",
+    verifyToken,
+    authorizeRoles("student"),
+    getStudentDashboard
 );
 
 module.exports = router;
