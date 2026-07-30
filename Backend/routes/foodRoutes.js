@@ -8,15 +8,51 @@ const {
     deleteFood,
 } = require("../controllers/foodController");
 
+const verifyToken = require("../middleware/authMiddleware");
+const authorizeDepartment = require("../middleware/departmentMiddleware");
+
+// ======================================
 // Add Food
-router.post("/add", addFood);
+// Admin + Food Department
+// ======================================
+router.post(
+    "/add",
+    verifyToken,
+    authorizeDepartment("Food"),
+    addFood
+);
 
+// ======================================
 // Get All Food
-router.get("/all", getAllFood);
+// Admin + Food Department
+// ======================================
+router.get(
+    "/all",
+    verifyToken,
+    authorizeDepartment("Food"),
+    getAllFood
+);
 
+// ======================================
 // Update Food
-router.put("/update/:id", updateFood);
+// Admin + Food Department
+// ======================================
+router.put(
+    "/update/:id",
+    verifyToken,
+    authorizeDepartment("Food"),
+    updateFood
+);
 
+// ======================================
 // Delete Food
-router.delete("/delete/:id", deleteFood);
+// Admin + Food Department
+// ======================================
+router.delete(
+    "/delete/:id",
+    verifyToken,
+    authorizeDepartment("Food"),
+    deleteFood
+);
+
 module.exports = router;

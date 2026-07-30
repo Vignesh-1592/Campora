@@ -40,9 +40,24 @@ const userSchema = new mongoose.Schema(
 
     // Department
     department: {
-      type: String,
-      required: true,
-    },
+    type: String,
+    enum: [
+        "Food",
+        "Snacks",
+        "Stationery",
+        "Book Depot",
+        "Print Centre",
+        "Administration",
+        "CSE",
+        "ECE",
+        "EEE",
+        "MECH",
+        "CIVIL",
+        "AIDS",
+        "AIML",
+        "IT"
+    ]
+},
 
     // Staff Only
     employeeId: {
