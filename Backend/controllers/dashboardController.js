@@ -22,7 +22,7 @@ exports.getStaffDashboard = async (req, res) => {
             orderStatus: "Completed"
         });
 
-        // Today's Date (00:00:00)
+        // Today's Date
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -88,6 +88,7 @@ exports.getStaffDashboard = async (req, res) => {
     }
 
 };
+
 // ======================================
 // Student Dashboard
 // ======================================
@@ -114,26 +115,15 @@ exports.getStudentDashboard = async (req, res) => {
             }
         });
 
-        // Total Amount Spent
-        const spent = await Order.aggregate([
-            {
-                $match: {
-                    user: req.user.id,
-                    paymentStatus: "Paid"
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    totalSpent: {
-                        $sum: "$totalPrice"
-                    }
-                }
-            }
-        ]);
+        // Total Amount Spent (Only Paid Orders)
+        const paidOrders = await Order.find({
+            user: studentId,
+            paymentStatus: "Paid"
+        });
 
-        const totalSpent =
-            spent.length > 0 ? spent[0].totalSpent : 0;
+        const totalSpent = paidOrders.reduce((sum, order) => {
+            return sum + order.totalPrice;
+        }, 0);
 
         // Recent Orders
         const recentOrders = await Order.find({

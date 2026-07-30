@@ -4,7 +4,11 @@ const router = express.Router();
 const {
     addOrder,
     getAllOrders,
+    getMyOrders,
+    getStaffHistory,
     updateOrder,
+    updateOrderStatus,
+    updatePaymentStatus,
     deleteOrder
 } = require("../controllers/orderController");
 
@@ -21,9 +25,29 @@ router.post("/add", verifyToken, addOrder);
 router.get("/", verifyToken, getAllOrders);
 
 // ===============================
-// Update Order
+// Get Student Order History
+// ===============================
+router.get("/my-orders", verifyToken, getMyOrders);
+
+// ===============================
+// Get Staff Department Order History
+// ===============================
+router.get("/staff-history", verifyToken, getStaffHistory);
+
+// ===============================
+// Update Complete Order
 // ===============================
 router.put("/update/:id", verifyToken, updateOrder);
+
+// ===============================
+// Update Order Status
+// ===============================
+router.put("/status/:id", verifyToken, updateOrderStatus);
+
+// ===============================
+// Update Payment Status
+// ===============================
+router.put("/payment/:id", verifyToken, updatePaymentStatus);
 
 // ===============================
 // Delete Order
