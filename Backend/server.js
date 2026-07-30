@@ -15,6 +15,7 @@ const printRoutes = require("./routes/printRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const snackRoutes = require("./routes/snackRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 // Load environment variables from .env file
 dotenv.config();
 
@@ -58,6 +59,7 @@ app.use("/api/orders", orderRoutes);
 
 app.use("/api/snacks", snackRoutes);
 
+app.use("/api/dashboard", dashboardRoutes);
 // Server Port
 const PORT = process.env.PORT || 5000;
 

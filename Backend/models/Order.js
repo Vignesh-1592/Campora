@@ -10,7 +10,13 @@ const orderSchema = new mongoose.Schema(
 
         module: {
             type: String,
-            enum: ["Food", "Stationery", "Book"],
+            enum: [
+                "Food",
+                "Snacks",
+                "Stationery",
+                "Book",
+                "Print"
+            ],
             required: true,
         },
 
@@ -50,8 +56,7 @@ const orderSchema = new mongoose.Schema(
             type: Number,
             unique: true,
             required: true,
-        }
-
+        },
     },
     {
         timestamps: true,
