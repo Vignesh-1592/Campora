@@ -16,6 +16,8 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const snackRoutes = require("./routes/snackRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const productRoutes = require("./routes/productRoutes");
+const inventoryRoutes = require("./routes/inventoryRoutes");
 // Load environment variables from .env file
 dotenv.config();
 
@@ -60,6 +62,10 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/snacks", snackRoutes);
 
 app.use("/api/dashboard", dashboardRoutes);
+
+app.use("/api/products", productRoutes);
+
+app.use("/api/inventory", inventoryRoutes);
 // Server Port
 const PORT = process.env.PORT || 5000;
 
