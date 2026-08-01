@@ -2,26 +2,32 @@ const express = require("express");
 const router = express.Router();
 
 const {
+
     getStaffDashboard,
     getStudentDashboard
+
 } = require("../controllers/dashboardController");
 
 const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
 // ======================================
-// Staff Dashboard
+// Department Administrator Dashboard
+// Super Administrator + Department Administrator
 // ======================================
+
 router.get(
-    "/staff",
+    "/department",
     verifyToken,
-    authorizeRoles("staff", "admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getStaffDashboard
 );
 
 // ======================================
 // Student Dashboard
+// Student Only
 // ======================================
+
 router.get(
     "/student",
     verifyToken,

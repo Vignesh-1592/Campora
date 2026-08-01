@@ -1,21 +1,31 @@
 // ======================================
-// Role Authorization Middleware
+// Campora Role Authorization Middleware
 // ======================================
 
-const authorizeRoles = (...roles) => {
+const authorizeRoles = (...allowedRoles) => {
 
     return (req, res, next) => {
 
+        // Check Authentication
         if (!req.user) {
+
             return res.status(401).json({
-                message: "Unauthorized"
+
+                message: "Unauthorized Access"
+
             });
+
         }
 
-        if (!roles.includes(req.user.role)) {
+        // Check Role Authorization
+        if (!allowedRoles.includes(req.user.role)) {
+
             return res.status(403).json({
-                message: "Access Denied"
+
+                message: "Access Denied. You do not have permission to access this resource."
+
             });
+
         }
 
         next();

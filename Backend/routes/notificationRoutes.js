@@ -16,65 +16,91 @@ const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
 // ======================================
-// Create Notification (Admin/Staff)
+// Create Notification
+// Super Administrator + Department Administrator
 // ======================================
 
 router.post(
     "/add",
     verifyToken,
-    authorizeRoles("admin", "staff"),
+    authorizeRoles("superadmin", "departmentadmin"),
     createNotification
 );
 
 // ======================================
-// Get My Notifications (Student)
+// Get My Notifications
+// All Logged-in Users
 // ======================================
 
 router.get(
     "/my",
     verifyToken,
-    authorizeRoles("student"),
+    authorizeRoles(
+        "student",
+        "departmentadmin",
+        "superadmin"
+    ),
     getMyNotifications
 );
 
 // ======================================
-// Get All Notifications (Admin)
+// Get All Notifications
+// Super Administrator Only
 // ======================================
 
 router.get(
     "/all",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin"),
     getAllNotifications
 );
 
 // ======================================
-// Unread Notification Count
+// Get Unread Notification Count
+// All Logged-in Users
 // ======================================
 
 router.get(
     "/unread-count",
     verifyToken,
+    authorizeRoles(
+        "student",
+        "departmentadmin",
+        "superadmin"
+    ),
     getUnreadCount
 );
 
 // ======================================
 // Mark Notification as Read
+// All Logged-in Users
 // ======================================
 
 router.put(
     "/read/:id",
     verifyToken,
+    authorizeRoles(
+        "student",
+        "departmentadmin",
+        "superadmin"
+    ),
     markAsRead
 );
 
 // ======================================
 // Delete Notification
+// All Logged-in Users
+// Controller validates ownership
 // ======================================
 
 router.delete(
     "/delete/:id",
     verifyToken,
+    authorizeRoles(
+        "student",
+        "departmentadmin",
+        "superadmin"
+    ),
     deleteNotification
 );
 

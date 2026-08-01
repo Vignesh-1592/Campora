@@ -20,21 +20,24 @@ const {
 
 const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
+const allowDepartment = require("../middleware/departmentMiddleware");
 
 // ======================================
 // Upload Product Image
+// Super Administrator + Department Administrator
 // ======================================
 
 router.post(
     "/product-image",
     verifyToken,
-    authorizeRoles("admin", "staff"),
+    authorizeRoles("superadmin", "departmentadmin"),
     uploadImage.single("image"),
     uploadProductImage
 );
 
 // ======================================
 // Upload Print Document
+// Student Only
 // ======================================
 
 router.post(
@@ -47,6 +50,7 @@ router.post(
 
 // ======================================
 // View Product Images
+// All Logged-in Users
 // ======================================
 
 router.get(
@@ -56,23 +60,40 @@ router.get(
 );
 
 // ======================================
-// View Documents
+// View Print Documents
+// Super Administrator + Print Department Administrator
 // ======================================
 
 router.get(
     "/documents",
     verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Print Centre"),
     getDocuments
 );
 
 // ======================================
-// Delete File
+// Delete Product Image
+// Super Administrator + Department Administrator
 // ======================================
 
 router.delete(
-    "/:folder/:filename",
+    "/products/:filename",
     verifyToken,
-    authorizeRoles("admin", "staff"),
+    authorizeRoles("superadmin", "departmentadmin"),
+    deleteFile
+);
+
+// ======================================
+// Delete Print Document
+// Super Administrator + Print Department Administrator
+// ======================================
+
+router.delete(
+    "/documents/:filename",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Print Centre"),
     deleteFile
 );
 

@@ -1,42 +1,48 @@
 const jwt = require("jsonwebtoken");
 
 // ======================================
-// Verify JWT Token Middleware
+// Campora JWT Authentication Middleware
 // ======================================
+
 const verifyToken = (req, res, next) => {
-
-    const authHeader = req.header("Authorization");
-
-    console.log("Authorization Header:", authHeader);
-
-    if (!authHeader) {
-        return res.status(401).json({
-            message: "Access Denied. No Token Provided"
-        });
-    }
-
-    const token = authHeader.startsWith("Bearer ")
-        ? authHeader.slice(7)
-        : authHeader;
-
-    console.log("Extracted Token:", token);
 
     try {
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const authHeader = req.header("Authorization");
 
-        console.log("Decoded User:", decoded);
+        // Check Authorization Header
+        if (!authHeader) {
 
+            return res.status(401).json({
+
+                message: "Access Denied. No token provided."
+
+            });
+
+        }
+
+        // Extract Bearer Token
+        const token = authHeader.startsWith("Bearer ")
+            ? authHeader.substring(7)
+            : authHeader;
+
+        // Verify JWT
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        // Attach User Details
         req.user = decoded;
 
         next();
 
     } catch (error) {
 
-        console.log("JWT Error:", error.message);
-
         return res.status(401).json({
-            message: "Invalid Token"
+
+            message: "Invalid or Expired Token"
+
         });
 
     }

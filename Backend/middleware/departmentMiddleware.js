@@ -1,21 +1,30 @@
 // ======================================
-// Department Authorization Middleware
+// Campora Department Authorization Middleware
 // ======================================
 
-const authorizeDepartment = (...departments) => {
+const allowDepartment = (...allowedDepartments) => {
 
     return (req, res, next) => {
 
-        // Admin can access everything
-        if (req.user.role === "admin") {
+        // Super Administrator can access everything
+        if (req.user.role === "superadmin") {
             return next();
         }
 
-        // Check department
-        if (!departments.includes(req.user.department)) {
+        // Only Department Administrators are allowed
+        if (req.user.role !== "departmentadmin") {
 
             return res.status(403).json({
-                message: "Access Denied. Wrong Department."
+                message: "Access Denied. Department Administrator access required."
+            });
+
+        }
+
+        // Department Validation
+        if (!allowedDepartments.includes(req.user.department)) {
+
+            return res.status(403).json({
+                message: `Access Denied. Only ${allowedDepartments.join(", ")} Department Administrator can access this resource.`
             });
 
         }
@@ -26,4 +35,4 @@ const authorizeDepartment = (...departments) => {
 
 };
 
-module.exports = authorizeDepartment;
+module.exports = allowDepartment;

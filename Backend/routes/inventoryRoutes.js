@@ -14,64 +14,107 @@ const {
 
 const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
+const allowDepartment = require("../middleware/departmentMiddleware");
 
 // ======================================
 // Add Inventory
+// Super Administrator + Department Administrator
 // ======================================
+
 router.post(
     "/add",
     verifyToken,
-    authorizeRoles("staff", "admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment(
+        "Food",
+        "Snacks",
+        "Stationery",
+        "Book Depot"
+    ),
     addInventory
 );
 
 // ======================================
-// Get All Inventory (Admin)
+// Get All Inventory
+// Super Administrator Only
 // ======================================
+
 router.get(
     "/",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin"),
     getAllInventory
 );
 
 // ======================================
-// Get Department Inventory (Staff)
+// Get Department Inventory
+// Department Administrator
 // ======================================
+
 router.get(
     "/department",
     verifyToken,
-    authorizeRoles("staff"),
+    authorizeRoles("departmentadmin"),
+    allowDepartment(
+        "Food",
+        "Snacks",
+        "Stationery",
+        "Book Depot"
+    ),
     getDepartmentInventory
 );
 
 // ======================================
 // Update Inventory
+// Super Administrator + Department Administrator
 // ======================================
+
 router.put(
     "/update/:id",
     verifyToken,
-    authorizeRoles("staff", "admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment(
+        "Food",
+        "Snacks",
+        "Stationery",
+        "Book Depot"
+    ),
     updateInventory
 );
 
 // ======================================
 // Delete Inventory
+// Super Administrator + Department Administrator
 // ======================================
+
 router.delete(
     "/delete/:id",
     verifyToken,
-    authorizeRoles("staff", "admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment(
+        "Food",
+        "Snacks",
+        "Stationery",
+        "Book Depot"
+    ),
     deleteInventory
 );
 
 // ======================================
 // Low Stock Inventory
+// Super Administrator + Department Administrator
 // ======================================
+
 router.get(
     "/low-stock",
     verifyToken,
-    authorizeRoles("staff", "admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment(
+        "Food",
+        "Snacks",
+        "Stationery",
+        "Book Depot"
+    ),
     getLowStockInventory
 );
 

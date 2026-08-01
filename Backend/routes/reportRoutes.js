@@ -20,88 +20,94 @@ const authorizeRoles = require("../middleware/roleMiddleware");
 
 // ======================================
 // Revenue APIs
+// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/total-revenue",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getTotalRevenue
 );
 
 router.get(
     "/today-revenue",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getTodayRevenue
 );
 
 router.get(
     "/monthly-revenue",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getMonthlyRevenue
 );
 
 // ======================================
 // Dashboard Summary
+// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/dashboard-summary",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getDashboardSummary
 );
 
 // ======================================
 // Orders
+// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/total-orders",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getTotalOrders
 );
 
 router.get(
     "/order-status",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getOrderStatusStats
 );
 
 // ======================================
-// Payments
+// Payment Statistics
+// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/payment-stats",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getPaymentStats
 );
 
 // ======================================
 // Department Revenue
+// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/department-revenue",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getDepartmentRevenue
 );
 
 // ======================================
 // Top Selling Products
+// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/top-products",
     verifyToken,
-    authorizeRoles("admin"),
+    authorizeRoles("superadmin", "departmentadmin"),
     getTopSellingProducts
 );
 

@@ -22,7 +22,10 @@ exports.registerUser = async (req, res) => {
             role
         } = req.body;
 
-        // Check if email already exists
+        // ===============================
+        // Check Existing Email
+        // ===============================
+
         const existingEmail = await User.findOne({ email });
 
         if (existingEmail) {
@@ -31,8 +34,12 @@ exports.registerUser = async (req, res) => {
             });
         }
 
+        // ===============================
         // Check Roll Number
+        // ===============================
+
         if (rollNumber) {
+
             const existingRoll = await User.findOne({ rollNumber });
 
             if (existingRoll) {
@@ -40,10 +47,15 @@ exports.registerUser = async (req, res) => {
                     message: "Roll Number already exists"
                 });
             }
+
         }
 
+        // ===============================
         // Check Employee ID
+        // ===============================
+
         if (employeeId) {
+
             const existingEmployee = await User.findOne({ employeeId });
 
             if (existingEmployee) {
@@ -51,10 +63,15 @@ exports.registerUser = async (req, res) => {
                     message: "Employee ID already exists"
                 });
             }
+
         }
 
+        // ===============================
         // Check Admin ID
+        // ===============================
+
         if (adminId) {
+
             const existingAdmin = await User.findOne({ adminId });
 
             if (existingAdmin) {
@@ -62,6 +79,7 @@ exports.registerUser = async (req, res) => {
                     message: "Admin ID already exists"
                 });
             }
+
         }
 
         // ===============================
@@ -88,31 +106,56 @@ exports.registerUser = async (req, res) => {
         ];
 
         // Student Validation
-        if (role === "student" && !studentDepartments.includes(department)) {
+
+        if (
+            role === "student" &&
+            !studentDepartments.includes(department)
+        ) {
+
             return res.status(400).json({
                 message: "Students must belong to an academic department."
             });
+
         }
 
-        // Staff Validation
-        if (role === "staff" && !serviceDepartments.includes(department)) {
+        // Department Administrator Validation
+
+        if (
+            role === "departmentadmin" &&
+            !serviceDepartments.includes(department)
+        ) {
+
             return res.status(400).json({
-                message: "Staff must belong to a service department."
+                message: "Department Administrator must belong to a service department."
             });
+
         }
 
-        // Admin Validation
-        if (role === "admin" && department !== "Administration") {
+        // Super Administrator Validation
+
+        if (
+            role === "superadmin" &&
+            department !== "Administration"
+        ) {
+
             return res.status(400).json({
-                message: "Admin department must be Administration."
+                message: "Super Administrator department must be Administration."
             });
+
         }
 
+        // ===============================
         // Hash Password
+        // ===============================
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // ===============================
         // Create User
+        // ===============================
+
         const user = new User({
+
             name,
             rollNumber,
             employeeId,
@@ -123,13 +166,16 @@ exports.registerUser = async (req, res) => {
             phone,
             password: hashedPassword,
             role
+
         });
 
         await user.save();
 
         return res.status(201).json({
+
             message: "User Registered Successfully",
             user
+
         });
 
     } catch (error) {
@@ -137,7 +183,9 @@ exports.registerUser = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
@@ -153,32 +201,66 @@ exports.loginUser = async (req, res) => {
 
         const { campusId, password } = req.body;
 
+        // ===============================
         // Find User
+        // ===============================
+
         const user = await User.findOne({
+
             $or: [
                 { rollNumber: campusId },
                 { employeeId: campusId },
                 { adminId: campusId }
             ]
+
         });
 
         if (!user) {
+
             return res.status(404).json({
+
                 message: "User not found"
+
             });
+
         }
 
-        // Compare Password
+        // ===============================
+        // Account Status
+        // ===============================
+
+        if (!user.isActive) {
+
+            return res.status(403).json({
+
+                message: "Your account has been deactivated. Please contact Super Administrator."
+
+            });
+
+        }
+
+        // ===============================
+        // Verify Password
+        // ===============================
+
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
+
             return res.status(400).json({
+
                 message: "Invalid Password"
+
             });
+
         }
 
+        // ===============================
         // Generate JWT Token
+        // ===============================
+
         const token = jwt.sign(
+
             {
                 id: user._id,
                 name: user.name,
@@ -188,16 +270,27 @@ exports.loginUser = async (req, res) => {
                 employeeId: user.employeeId,
                 adminId: user.adminId
             },
+
             process.env.JWT_SECRET,
+
             {
                 expiresIn: "7d"
             }
+
         );
 
+        // ===============================
+        // Login Success
+        // ===============================
+
         return res.status(200).json({
+
             message: "Login Successful",
+
             token,
+
             user: {
+
                 _id: user._id,
                 name: user.name,
                 rollNumber: user.rollNumber,
@@ -208,7 +301,9 @@ exports.loginUser = async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 role: user.role
+
             }
+
         });
 
     } catch (error) {
@@ -216,7 +311,9 @@ exports.loginUser = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
@@ -230,17 +327,26 @@ exports.getUserProfile = async (req, res) => {
 
     try {
 
-        const user = await User.findById(req.user.id).select("-password");
+        const user = await User
+            .findById(req.user.id)
+            .select("-password");
 
         if (!user) {
+
             return res.status(404).json({
+
                 message: "User not found"
+
             });
+
         }
 
         return res.status(200).json({
+
             message: "Profile Retrieved Successfully",
+
             user: {
+
                 id: user._id,
                 name: user.name,
                 role: user.role,
@@ -251,7 +357,9 @@ exports.getUserProfile = async (req, res) => {
                 year: user.year,
                 email: user.email,
                 phone: user.phone
+
             }
+
         });
 
     } catch (error) {
@@ -259,7 +367,9 @@ exports.getUserProfile = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
