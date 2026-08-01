@@ -6,6 +6,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("path");
 
 // Load Environment Variables
 dotenv.config();
@@ -36,6 +37,8 @@ const inventoryRoutes = require("./routes/inventoryRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 
+const uploadRoutes = require("./routes/uploadRoutes");
+
 // ======================================
 // Create Express App
 // ======================================
@@ -51,6 +54,12 @@ app.use(cors());
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+
+// ======================================
+// Static Folder for Uploaded Files
+// ======================================
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ======================================
 // Default Route
@@ -101,6 +110,9 @@ app.use("/api/notifications", notificationRoutes);
 
 // Reports & Analytics
 app.use("/api/reports", reportRoutes);
+
+// Uploads
+app.use("/api/uploads", uploadRoutes);
 
 // ======================================
 // Start Server
