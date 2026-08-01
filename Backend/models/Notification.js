@@ -8,6 +8,18 @@ const notificationSchema = new mongoose.Schema(
             required: true,
         },
 
+        module: {
+            type: String,
+            enum: [
+                "Food",
+                "Snacks",
+                "Stationery",
+                "Book",
+                "Print"
+            ],
+            required: true
+        },
+
         title: {
             type: String,
             required: true,

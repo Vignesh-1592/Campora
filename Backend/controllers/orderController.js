@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const Notification = require("../models/Notification");
 
 // ===============================
 // Add Order
@@ -18,7 +19,9 @@ exports.addOrder = async (req, res) => {
         // Generate Token Number
         const lastOrder = await Order.findOne().sort({ tokenNumber: -1 });
 
-        const tokenNumber = lastOrder ? lastOrder.tokenNumber + 1 : 1001;
+        const tokenNumber = lastOrder
+            ? lastOrder.tokenNumber + 1
+            : 1001;
 
         const order = new Order({
 
@@ -34,9 +37,29 @@ exports.addOrder = async (req, res) => {
 
         await order.save();
 
+        // ======================================
+        // Automatic Notification
+        // ======================================
+
+        await Notification.create({
+
+            user: order.user,
+
+            module: order.module,
+
+            title: "Order Placed",
+
+            message:
+                `Your order for ${order.itemName} has been placed successfully. Token Number: ${order.tokenNumber}.`
+
+        });
+
         return res.status(201).json({
+
             message: "Order Placed Successfully",
+
             order
+
         });
 
     } catch (error) {
@@ -44,7 +67,9 @@ exports.addOrder = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
@@ -60,14 +85,14 @@ exports.getAllOrders = async (req, res) => {
 
         let filter = {};
 
-        // Staff sees only their department orders
+        // Staff
         if (req.user.role === "staff") {
 
             filter.module = req.user.department;
 
         }
 
-        // Student sees only their own orders
+        // Student
         if (req.user.role === "student") {
 
             filter.user = req.user.id;
@@ -75,6 +100,7 @@ exports.getAllOrders = async (req, res) => {
         }
 
         const orders = await Order.find(filter)
+
             .sort({ createdAt: -1 });
 
         return res.status(200).json({
@@ -109,20 +135,33 @@ exports.updateOrder = async (req, res) => {
     try {
 
         const order = await Order.findByIdAndUpdate(
+
             req.params.id,
+
             req.body,
-            { new: true }
+
+            {
+                new: true
+            }
+
         );
 
         if (!order) {
+
             return res.status(404).json({
+
                 message: "Order Not Found"
+
             });
+
         }
 
         return res.status(200).json({
+
             message: "Order Updated Successfully",
+
             order
+
         });
 
     } catch (error) {
@@ -130,13 +169,14 @@ exports.updateOrder = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
 
 };
-
 // ===============================
 // Update Order Status
 // ===============================
@@ -149,18 +189,70 @@ exports.updateOrderStatus = async (req, res) => {
         const order = await Order.findById(req.params.id);
 
         if (!order) {
+
             return res.status(404).json({
                 message: "Order Not Found"
             });
+
         }
 
         order.orderStatus = orderStatus;
 
         await order.save();
 
+        // ======================================
+        // Automatic Notification
+        // ======================================
+
+        let title = "";
+        let message = "";
+
+        if (orderStatus === "Preparing") {
+
+            title = "Order Preparing";
+
+            message = `Your ${order.itemName} is being prepared.`;
+
+        }
+
+        else if (orderStatus === "Ready for Pickup") {
+
+            title = "Order Ready";
+
+            message = `Your ${order.itemName} is ready for pickup. Token Number: ${order.tokenNumber}.`;
+
+        }
+
+        else if (orderStatus === "Completed") {
+
+            title = "Order Completed";
+
+            message = `Your ${order.itemName} has been collected successfully. Thank you for using Campora.`;
+
+        }
+
+        if (title !== "") {
+
+            await Notification.create({
+
+                user: order.user,
+
+                module: order.module,
+
+                title,
+
+                message
+
+            });
+
+        }
+
         return res.status(200).json({
+
             message: "Order Status Updated Successfully",
+
             order
+
         });
 
     } catch (error) {
@@ -168,7 +260,9 @@ exports.updateOrderStatus = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
@@ -185,14 +279,21 @@ exports.deleteOrder = async (req, res) => {
         const order = await Order.findByIdAndDelete(req.params.id);
 
         if (!order) {
+
             return res.status(404).json({
+
                 message: "Order Not Found"
+
             });
+
         }
 
         return res.status(200).json({
+
             message: "Order Deleted Successfully",
+
             order
+
         });
 
     } catch (error) {
@@ -200,12 +301,15 @@ exports.deleteOrder = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
 
 };
+
 // ===============================
 // Get Student Order History
 // ===============================
@@ -214,8 +318,11 @@ exports.getMyOrders = async (req, res) => {
     try {
 
         const orders = await Order.find({
+
             user: req.user.id
+
         })
+
         .sort({ createdAt: -1 });
 
         return res.status(200).json({
@@ -233,12 +340,15 @@ exports.getMyOrders = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
 
 };
+
 // ===============================
 // Update Payment Status
 // ===============================
@@ -251,18 +361,45 @@ exports.updatePaymentStatus = async (req, res) => {
         const order = await Order.findById(req.params.id);
 
         if (!order) {
+
             return res.status(404).json({
+
                 message: "Order Not Found"
+
             });
+
         }
 
         order.paymentStatus = paymentStatus;
 
         await order.save();
 
+        // ======================================
+        // Automatic Payment Notification
+        // ======================================
+
+        if (paymentStatus === "Paid") {
+
+            await Notification.create({
+
+                user: order.user,
+
+                module: order.module,
+
+                title: "Payment Successful",
+
+                message: `Payment of ₹${order.totalPrice} received successfully for ${order.itemName}.`
+
+            });
+
+        }
+
         return res.status(200).json({
+
             message: "Payment Status Updated Successfully",
+
             order
+
         });
 
     } catch (error) {
@@ -270,12 +407,15 @@ exports.updatePaymentStatus = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
 
 };
+
 // ===============================
 // Get Staff Department Order History
 // ===============================
@@ -284,8 +424,12 @@ exports.getStaffHistory = async (req, res) => {
     try {
 
         const orders = await Order.find({
+
             module: req.user.department
-        }).sort({ createdAt: -1 });
+
+        })
+
+        .sort({ createdAt: -1 });
 
         return res.status(200).json({
 
@@ -304,7 +448,9 @@ exports.getStaffHistory = async (req, res) => {
         console.error(error);
 
         return res.status(500).json({
+
             message: "Internal Server Error"
+
         });
 
     }
