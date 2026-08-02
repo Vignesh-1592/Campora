@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
 // ======================================
 // Register User
@@ -66,17 +67,61 @@ exports.registerUser = async (req, res) => {
 
         // Password Validation
 
-        if (password.length < 6) {
+if (password.length < 6) {
 
-            return res.status(400).json({
+    return res.status(400).json({
 
-                success: false,
+        success: false,
 
-                message: "Password must contain at least 6 characters."
+        message: "Password must contain at least 6 characters."
 
-            });
+    });
 
-        }
+}
+
+// ======================================
+// Role Specific Validation
+// ======================================
+
+// Student
+if (role === "student" && !rollNumber) {
+
+    return res.status(400).json({
+
+        success: false,
+
+        message: "Roll Number is required."
+
+    });
+
+}
+
+// Department Administrator
+if (role === "departmentadmin" && !employeeId) {
+
+    return res.status(400).json({
+
+        success: false,
+
+        message: "Employee ID is required."
+
+    });
+
+}
+
+// Super Administrator
+if (role === "superadmin" && !adminId) {
+
+    return res.status(400).json({
+
+        success: false,
+
+        message: "Admin ID is required."
+
+    });
+
+}
+
 
         // ======================================
         // Duplicate Checks
@@ -639,6 +684,7 @@ exports.changePassword = async (req, res) => {
 
         } = req.body;
 
+        // Validate Required Fields
         if (!currentPassword || !newPassword) {
 
             return res.status(400).json({
@@ -651,6 +697,7 @@ exports.changePassword = async (req, res) => {
 
         }
 
+        // Find User
         const user = await User.findById(req.user.id);
 
         if (!user) {
@@ -665,6 +712,7 @@ exports.changePassword = async (req, res) => {
 
         }
 
+        // Verify Current Password
         const isMatch = await bcrypt.compare(
 
             currentPassword,
@@ -685,6 +733,7 @@ exports.changePassword = async (req, res) => {
 
         }
 
+        // New Password Length Validation
         if (newPassword.length < 6) {
 
             return res.status(400).json({
@@ -697,6 +746,20 @@ exports.changePassword = async (req, res) => {
 
         }
 
+        // Prevent Same Password
+        if (currentPassword === newPassword) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "New Password cannot be the same as the current password."
+
+            });
+
+        }
+
+        // Encrypt New Password
         user.password = await bcrypt.hash(
 
             newPassword,

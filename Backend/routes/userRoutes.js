@@ -47,7 +47,6 @@ router.get(
 router.put(
     "/profile",
     verifyToken,
-    getUserProfile,
     updateUserProfile
 );
 
