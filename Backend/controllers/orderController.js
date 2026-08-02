@@ -1,9 +1,11 @@
+const mongoose = require("mongoose");
 const Order = require("../models/Order");
 const Notification = require("../models/Notification");
 
-// ===============================
-// Add Order
-// ===============================
+// ======================================
+// Place Order
+// Student
+// ======================================
 exports.addOrder = async (req, res) => {
 
     try {
@@ -16,14 +18,32 @@ exports.addOrder = async (req, res) => {
             totalPrice
         } = req.body;
 
+        // Required Field Validation
+        if (
+            !module ||
+            !itemId ||
+            !itemName ||
+            !quantity ||
+            totalPrice == null
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Module, Item, Quantity and Total Price are required."
+            });
+
+        }
+
         // Generate Token Number
-        const lastOrder = await Order.findOne().sort({ tokenNumber: -1 });
+        const lastOrder = await Order.findOne().sort({
+            tokenNumber: -1
+        });
 
         const tokenNumber = lastOrder
             ? lastOrder.tokenNumber + 1
             : 1001;
 
-        const order = new Order({
+        const order = await Order.create({
 
             user: req.user.id,
             module,
@@ -35,12 +55,7 @@ exports.addOrder = async (req, res) => {
 
         });
 
-        await order.save();
-
-        // ======================================
-        // Automatic Notification
-        // ======================================
-
+        // Notification
         await Notification.create({
 
             user: order.user,
@@ -56,8 +71,8 @@ exports.addOrder = async (req, res) => {
 
         return res.status(201).json({
 
+            success: true,
             message: "Order Placed Successfully",
-
             order
 
         });
@@ -68,6 +83,7 @@ exports.addOrder = async (req, res) => {
 
         return res.status(500).json({
 
+            success: false,
             message: "Internal Server Error"
 
         });
@@ -76,39 +92,29 @@ exports.addOrder = async (req, res) => {
 
 };
 
-// ===============================
-// Get Department Orders
-// ===============================
+// ======================================
+// Get All Orders
+// Admin
+// ======================================
 exports.getAllOrders = async (req, res) => {
 
     try {
 
-        let filter = {};
+        const orders = await Order.find()
 
-        // Staff
-        if (req.user.role === "staff") {
+            .populate("user", "name rollNumber department")
 
-            filter.module = req.user.department;
+            .sort({
 
-        }
+                createdAt: -1
 
-        // Student
-        if (req.user.role === "student") {
-
-            filter.user = req.user.id;
-
-        }
-
-        const orders = await Order.find(filter)
-
-            .sort({ createdAt: -1 });
+            });
 
         return res.status(200).json({
 
+            success: true,
             message: "Orders Retrieved Successfully",
-
             count: orders.length,
-
             orders
 
         });
@@ -119,6 +125,7 @@ exports.getAllOrders = async (req, res) => {
 
         return res.status(500).json({
 
+            success: false,
             message: "Internal Server Error"
 
         });
@@ -127,21 +134,314 @@ exports.getAllOrders = async (req, res) => {
 
 };
 
-// ===============================
+// ======================================
+// Student Order History
+// ======================================
+exports.getMyOrders = async (req, res) => {
+
+    try {
+
+        const orders = await Order.find({
+
+            user: req.user.id
+
+        })
+
+        .sort({
+
+            createdAt: -1
+
+        });
+
+        return res.status(200).json({
+
+            success: true,
+            message: "Student Orders Retrieved Successfully",
+            count: orders.length,
+            orders
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+            message: "Internal Server Error"
+
+        });
+
+    }
+
+};
+
+// ======================================
+// Search Orders
+// Search by Item Name
+// ======================================
+exports.searchOrders = async (req, res) => {
+
+    try {
+
+        const { item } = req.query;
+
+        if (!item) {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Item name is required."
+
+            });
+
+        }
+
+        const orders = await Order.find({
+
+            itemName: {
+
+                $regex: item,
+                $options: "i"
+
+            }
+
+        }).populate("user", "name rollNumber");
+
+        if (orders.length === 0) {
+
+            return res.status(404).json({
+
+                success: false,
+                message: "No orders found."
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            success: true,
+            message: "Order Search Successful",
+            count: orders.length,
+            orders
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+            message: "Internal Server Error"
+
+        });
+
+    }
+
+};
+
+// ======================================
+// Department Order History
+// ======================================
+exports.getStaffHistory = async (req, res) => {
+
+    try {
+
+        const orders = await Order.find({
+
+            module: req.user.department
+
+        })
+
+        .populate("user", "name rollNumber")
+
+        .sort({
+
+            createdAt: -1
+
+        });
+
+        return res.status(200).json({
+
+            success: true,
+            message: "Department Orders Retrieved Successfully",
+            department: req.user.department,
+            count: orders.length,
+            orders
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+            message: "Internal Server Error"
+
+        });
+
+    }
+
+};
+
+// ======================================
+// Filter Orders By Status
+// ======================================
+exports.getOrdersByStatus = async (req, res) => {
+
+    try {
+
+        const { status } = req.query;
+
+        if (!status) {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Order status is required."
+
+            });
+
+        }
+
+        const orders = await Order.find({
+
+            orderStatus: status
+
+        })
+
+        .populate("user", "name rollNumber");
+
+        if (orders.length === 0) {
+
+            return res.status(404).json({
+
+                success: false,
+                message: "No orders found."
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            success: true,
+            message: "Orders Retrieved Successfully",
+            count: orders.length,
+            orders
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+            message: "Internal Server Error"
+
+        });
+
+    }
+
+};
+
+// ======================================
+// Pagination
+// ======================================
+exports.paginateOrders = async (req, res) => {
+
+    try {
+
+        const page = parseInt(req.query.page) || 1;
+
+        const limit = parseInt(req.query.limit) || 10;
+
+        const skip = (page - 1) * limit;
+
+        const totalOrders = await Order.countDocuments();
+
+        const orders = await Order.find()
+
+            .populate("user", "name rollNumber")
+
+            .skip(skip)
+
+            .limit(limit)
+
+            .sort({
+
+                createdAt: -1
+
+            });
+
+        return res.status(200).json({
+
+            success: true,
+            message: "Orders Retrieved Successfully",
+            currentPage: page,
+            totalPages: Math.ceil(totalOrders / limit),
+            totalOrders,
+            count: orders.length,
+            orders
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+            message: "Internal Server Error"
+
+        });
+
+    }
+
+};
+
+// ======================================
 // Update Order
-// ===============================
+// ======================================
 exports.updateOrder = async (req, res) => {
 
     try {
 
+        const { id } = req.params;
+
+        // Validate MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Invalid Order ID."
+
+            });
+
+        }
+
         const order = await Order.findByIdAndUpdate(
 
-            req.params.id,
+            id,
 
             req.body,
 
             {
-                new: true
+
+                new: true,
+
+                runValidators: true
+
             }
 
         );
@@ -150,6 +450,7 @@ exports.updateOrder = async (req, res) => {
 
             return res.status(404).json({
 
+                success: false,
                 message: "Order Not Found"
 
             });
@@ -158,8 +459,8 @@ exports.updateOrder = async (req, res) => {
 
         return res.status(200).json({
 
+            success: true,
             message: "Order Updated Successfully",
-
             order
 
         });
@@ -170,6 +471,7 @@ exports.updateOrder = async (req, res) => {
 
         return res.status(500).json({
 
+            success: false,
             message: "Internal Server Error"
 
         });
@@ -177,21 +479,39 @@ exports.updateOrder = async (req, res) => {
     }
 
 };
-// ===============================
+
+// ======================================
 // Update Order Status
-// ===============================
+// ======================================
 exports.updateOrderStatus = async (req, res) => {
 
     try {
 
+        const { id } = req.params;
+
         const { orderStatus } = req.body;
 
-        const order = await Order.findById(req.params.id);
+        // Validate MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Invalid Order ID."
+
+            });
+
+        }
+
+        const order = await Order.findById(id);
 
         if (!order) {
 
             return res.status(404).json({
+
+                success: false,
                 message: "Order Not Found"
+
             });
 
         }
@@ -200,11 +520,8 @@ exports.updateOrderStatus = async (req, res) => {
 
         await order.save();
 
-        // ======================================
-        // Automatic Notification
-        // ======================================
-
         let title = "";
+
         let message = "";
 
         if (orderStatus === "Preparing") {
@@ -227,7 +544,7 @@ exports.updateOrderStatus = async (req, res) => {
 
             title = "Order Completed";
 
-            message = `Your ${order.itemName} has been collected successfully. Thank you for using Campora.`;
+            message = `Your ${order.itemName} has been collected successfully.`;
 
         }
 
@@ -249,8 +566,8 @@ exports.updateOrderStatus = async (req, res) => {
 
         return res.status(200).json({
 
+            success: true,
             message: "Order Status Updated Successfully",
-
             order
 
         });
@@ -261,6 +578,7 @@ exports.updateOrderStatus = async (req, res) => {
 
         return res.status(500).json({
 
+            success: false,
             message: "Internal Server Error"
 
         });
@@ -268,87 +586,6 @@ exports.updateOrderStatus = async (req, res) => {
     }
 
 };
-
-// ===============================
-// Delete Order
-// ===============================
-exports.deleteOrder = async (req, res) => {
-
-    try {
-
-        const order = await Order.findByIdAndDelete(req.params.id);
-
-        if (!order) {
-
-            return res.status(404).json({
-
-                message: "Order Not Found"
-
-            });
-
-        }
-
-        return res.status(200).json({
-
-            message: "Order Deleted Successfully",
-
-            order
-
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-
-            message: "Internal Server Error"
-
-        });
-
-    }
-
-};
-
-// ===============================
-// Get Student Order History
-// ===============================
-exports.getMyOrders = async (req, res) => {
-
-    try {
-
-        const orders = await Order.find({
-
-            user: req.user.id
-
-        })
-
-        .sort({ createdAt: -1 });
-
-        return res.status(200).json({
-
-            message: "Student Orders Retrieved Successfully",
-
-            count: orders.length,
-
-            orders
-
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-
-            message: "Internal Server Error"
-
-        });
-
-    }
-
-};
-
 // ===============================
 // Update Payment Status
 // ===============================
@@ -356,16 +593,26 @@ exports.updatePaymentStatus = async (req, res) => {
 
     try {
 
+        const { id } = req.params;
         const { paymentStatus } = req.body;
 
-        const order = await Order.findById(req.params.id);
+        // Validate MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Order ID."
+            });
+
+        }
+
+        const order = await Order.findById(id);
 
         if (!order) {
 
             return res.status(404).json({
-
+                success: false,
                 message: "Order Not Found"
-
             });
 
         }
@@ -373,10 +620,6 @@ exports.updatePaymentStatus = async (req, res) => {
         order.paymentStatus = paymentStatus;
 
         await order.save();
-
-        // ======================================
-        // Automatic Payment Notification
-        // ======================================
 
         if (paymentStatus === "Paid") {
 
@@ -396,8 +639,8 @@ exports.updatePaymentStatus = async (req, res) => {
 
         return res.status(200).json({
 
+            success: true,
             message: "Payment Status Updated Successfully",
-
             order
 
         });
@@ -408,6 +651,7 @@ exports.updatePaymentStatus = async (req, res) => {
 
         return res.status(500).json({
 
+            success: false,
             message: "Internal Server Error"
 
         });
@@ -417,29 +661,40 @@ exports.updatePaymentStatus = async (req, res) => {
 };
 
 // ===============================
-// Get Staff Department Order History
+// Delete Order
 // ===============================
-exports.getStaffHistory = async (req, res) => {
+exports.deleteOrder = async (req, res) => {
 
     try {
 
-        const orders = await Order.find({
+        const { id } = req.params;
 
-            module: req.user.department
+        // Validate MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
 
-        })
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Order ID."
+            });
 
-        .sort({ createdAt: -1 });
+        }
+
+        const order = await Order.findByIdAndDelete(id);
+
+        if (!order) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Order Not Found"
+            });
+
+        }
 
         return res.status(200).json({
 
-            message: "Department Orders Retrieved Successfully",
-
-            department: req.user.department,
-
-            count: orders.length,
-
-            orders
+            success: true,
+            message: "Order Deleted Successfully",
+            order
 
         });
 
@@ -449,6 +704,7 @@ exports.getStaffHistory = async (req, res) => {
 
         return res.status(500).json({
 
+            success: false,
             message: "Internal Server Error"
 
         });

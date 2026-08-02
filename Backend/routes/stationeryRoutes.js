@@ -5,6 +5,11 @@ const {
 
     addStationeryItem,
     getAllStationeryItems,
+    searchStationeryItem,
+    getStationeryByCategory,
+    getAvailableStationeryItems,
+    sortStationeryByPrice,
+    paginateStationeryItems,
     updateStationeryItem,
     deleteStationeryItem
 
@@ -29,11 +34,10 @@ router.post(
 
 // ======================================
 // Get All Stationery Items
-// Super Administrator + Stationery Department Administrator
 // ======================================
 
 router.get(
-    "/",
+    "/all",
     verifyToken,
     authorizeRoles("superadmin", "departmentadmin"),
     allowDepartment("Stationery"),
@@ -41,8 +45,68 @@ router.get(
 );
 
 // ======================================
+// Search Stationery Item
+// Search by Name & Description
+// ======================================
+
+router.get(
+    "/search",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Stationery"),
+    searchStationeryItem
+);
+
+// ======================================
+// Filter Stationery By Category
+// ======================================
+
+router.get(
+    "/category",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Stationery"),
+    getStationeryByCategory
+);
+
+// ======================================
+// Get Available Stationery Items
+// ======================================
+
+router.get(
+    "/available",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Stationery"),
+    getAvailableStationeryItems
+);
+
+// ======================================
+// Sort Stationery By Price
+// ======================================
+
+router.get(
+    "/sort",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Stationery"),
+    sortStationeryByPrice
+);
+
+// ======================================
+// Pagination
+// ======================================
+
+router.get(
+    "/paginate",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Stationery"),
+    paginateStationeryItems
+);
+
+// ======================================
 // Update Stationery Item
-// Super Administrator + Stationery Department Administrator
 // ======================================
 
 router.put(
@@ -55,7 +119,6 @@ router.put(
 
 // ======================================
 // Delete Stationery Item
-// Super Administrator + Stationery Department Administrator
 // ======================================
 
 router.delete(

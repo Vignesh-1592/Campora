@@ -5,6 +5,11 @@ const {
 
     addFood,
     getAllFood,
+    searchFood,
+    getFoodByCategory,
+    getAvailableFood,
+    sortFoodByPrice,
+    paginateFood,
     updateFood,
     deleteFood
 
@@ -16,7 +21,6 @@ const allowDepartment = require("../middleware/departmentMiddleware");
 
 // ======================================
 // Add Food
-// Super Administrator + Food Department Administrator
 // ======================================
 
 router.post(
@@ -29,7 +33,6 @@ router.post(
 
 // ======================================
 // Get All Food
-// Super Administrator + Food Department Administrator
 // ======================================
 
 router.get(
@@ -41,8 +44,70 @@ router.get(
 );
 
 // ======================================
+// Search Food
+// Search by Name / Description
+// ======================================
+
+router.get(
+    "/search",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Food"),
+    searchFood
+);
+
+// ======================================
+// Filter By Category
+// ======================================
+
+router.get(
+    "/category",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Food"),
+    getFoodByCategory
+);
+
+// ======================================
+// Get Available Food
+// ======================================
+
+router.get(
+    "/available",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Food"),
+    getAvailableFood
+);
+
+// ======================================
+// Sort Food By Price
+// order=asc / desc
+// ======================================
+
+router.get(
+    "/sort",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Food"),
+    sortFoodByPrice
+);
+
+// ======================================
+// Pagination
+// page & limit
+// ======================================
+
+router.get(
+    "/paginate",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Food"),
+    paginateFood
+);
+
+// ======================================
 // Update Food
-// Super Administrator + Food Department Administrator
 // ======================================
 
 router.put(
@@ -55,7 +120,6 @@ router.put(
 
 // ======================================
 // Delete Food
-// Super Administrator + Food Department Administrator
 // ======================================
 
 router.delete(

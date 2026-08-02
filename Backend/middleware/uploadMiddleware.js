@@ -1,5 +1,21 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+// ======================================
+// Create Upload Folders Automatically
+// ======================================
+
+const productFolder = path.join(__dirname, "..", "uploads", "products");
+const documentFolder = path.join(__dirname, "..", "uploads", "documents");
+
+if (!fs.existsSync(productFolder)) {
+    fs.mkdirSync(productFolder, { recursive: true });
+}
+
+if (!fs.existsSync(documentFolder)) {
+    fs.mkdirSync(documentFolder, { recursive: true });
+}
 
 // ======================================
 // Product Image Storage
@@ -9,13 +25,18 @@ const productStorage = multer.diskStorage({
 
     destination: function (req, file, cb) {
 
-        cb(null, "uploads/products");
+        cb(null, productFolder);
 
     },
 
     filename: function (req, file, cb) {
 
-        cb(null, Date.now() + "-" + file.originalname);
+        const uniqueName =
+            Date.now() +
+            "-" +
+            file.originalname.replace(/\s+/g, "_");
+
+        cb(null, uniqueName);
 
     }
 
@@ -29,13 +50,18 @@ const documentStorage = multer.diskStorage({
 
     destination: function (req, file, cb) {
 
-        cb(null, "uploads/documents");
+        cb(null, documentFolder);
 
     },
 
     filename: function (req, file, cb) {
 
-        cb(null, Date.now() + "-" + file.originalname);
+        const uniqueName =
+            Date.now() +
+            "-" +
+            file.originalname.replace(/\s+/g, "_");
+
+        cb(null, uniqueName);
 
     }
 
@@ -47,9 +73,18 @@ const documentStorage = multer.diskStorage({
 
 const imageFilter = (req, file, cb) => {
 
-    const allowedExtensions = [".jpg", ".jpeg", ".png"];
+    const allowedExtensions = [
 
-    const extension = path.extname(file.originalname).toLowerCase();
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp"
+
+    ];
+
+    const extension = path
+        .extname(file.originalname)
+        .toLowerCase();
 
     if (allowedExtensions.includes(extension)) {
 
@@ -57,7 +92,9 @@ const imageFilter = (req, file, cb) => {
 
     } else {
 
-        cb(new Error("Only JPG, JPEG and PNG files are allowed."));
+        cb(new Error(
+            "Only JPG, JPEG, PNG and WEBP files are allowed."
+        ));
 
     }
 
@@ -69,9 +106,17 @@ const imageFilter = (req, file, cb) => {
 
 const documentFilter = (req, file, cb) => {
 
-    const allowedExtensions = [".pdf", ".doc", ".docx"];
+    const allowedExtensions = [
 
-    const extension = path.extname(file.originalname).toLowerCase();
+        ".pdf",
+        ".doc",
+        ".docx"
+
+    ];
+
+    const extension = path
+        .extname(file.originalname)
+        .toLowerCase();
 
     if (allowedExtensions.includes(extension)) {
 
@@ -79,14 +124,16 @@ const documentFilter = (req, file, cb) => {
 
     } else {
 
-        cb(new Error("Only PDF, DOC and DOCX files are allowed."));
+        cb(new Error(
+            "Only PDF, DOC and DOCX files are allowed."
+        ));
 
     }
 
 };
 
 // ======================================
-// Upload Objects
+// Product Image Upload
 // ======================================
 
 const uploadProductImage = multer({
@@ -97,11 +144,15 @@ const uploadProductImage = multer({
 
     limits: {
 
-        fileSize: 5 * 1024 * 1024
+        fileSize: 5 * 1024 * 1024 // 5 MB
 
     }
 
 });
+
+// ======================================
+// Print Document Upload
+// ======================================
 
 const uploadDocument = multer({
 
@@ -111,11 +162,15 @@ const uploadDocument = multer({
 
     limits: {
 
-        fileSize: 10 * 1024 * 1024
+        fileSize: 10 * 1024 * 1024 // 10 MB
 
     }
 
 });
+
+// ======================================
+// Export
+// ======================================
 
 module.exports = {
 

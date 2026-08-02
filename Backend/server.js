@@ -31,7 +31,6 @@ const printRoutes = require("./routes/printRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 
-const productRoutes = require("./routes/productRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 
 const notificationRoutes = require("./routes/notificationRoutes");
@@ -59,7 +58,10 @@ app.use(express.urlencoded({ extended: true }));
 // Static Folder for Uploaded Files
 // ======================================
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(
+    "/uploads",
+    express.static(path.join(__dirname, "uploads"))
+);
 
 // ======================================
 // Default Route
@@ -67,7 +69,13 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
 
-    res.send("🚀 Campora Backend Running Successfully!");
+    return res.status(200).json({
+
+        success: true,
+
+        message: "🚀 Campora Backend Running Successfully!"
+
+    });
 
 });
 
@@ -99,20 +107,51 @@ app.use("/api/orders", orderRoutes);
 // Dashboard
 app.use("/api/dashboard", dashboardRoutes);
 
-// Products
-app.use("/api/products", productRoutes);
-
 // Inventory
 app.use("/api/inventory", inventoryRoutes);
 
 // Notifications
 app.use("/api/notifications", notificationRoutes);
 
-// Reports & Analytics
+// Reports
 app.use("/api/reports", reportRoutes);
 
 // Uploads
 app.use("/api/uploads", uploadRoutes);
+
+// ======================================
+// 404 Route Handler
+// ======================================
+
+app.use((req, res) => {
+
+    return res.status(404).json({
+
+        success: false,
+
+        message: "API Route Not Found"
+
+    });
+
+});
+
+// ======================================
+// Global Error Handler
+// ======================================
+
+app.use((err, req, res, next) => {
+
+    console.error(err.stack);
+
+    return res.status(err.status || 500).json({
+
+        success: false,
+
+        message: err.message || "Internal Server Error"
+
+    });
+
+});
 
 // ======================================
 // Start Server
@@ -122,6 +161,10 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
 
-    console.log(`🚀 Server Running on http://localhost:${PORT}`);
+    console.log("=====================================");
+    console.log("🚀 Campora Backend Started");
+    console.log(`🌐 Server : http://localhost:${PORT}`);
+    console.log("📁 Uploads : http://localhost:" + PORT + "/uploads");
+    console.log("=====================================");
 
 });

@@ -5,6 +5,11 @@ const {
 
     addSnack,
     getAllSnacks,
+    searchSnack,
+    getSnackByCategory,
+    getAvailableSnacks,
+    sortSnackByPrice,
+    paginateSnack,
     updateSnack,
     deleteSnack
 
@@ -29,11 +34,10 @@ router.post(
 
 // ======================================
 // Get All Snacks
-// Super Administrator + Snacks Department Administrator
 // ======================================
 
 router.get(
-    "/",
+    "/all",
     verifyToken,
     authorizeRoles("superadmin", "departmentadmin"),
     allowDepartment("Snacks"),
@@ -41,8 +45,68 @@ router.get(
 );
 
 // ======================================
+// Search Snack
+// Search by Name & Description
+// ======================================
+
+router.get(
+    "/search",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Snacks"),
+    searchSnack
+);
+
+// ======================================
+// Filter Snacks By Category
+// ======================================
+
+router.get(
+    "/category",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Snacks"),
+    getSnackByCategory
+);
+
+// ======================================
+// Get Available Snacks
+// ======================================
+
+router.get(
+    "/available",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Snacks"),
+    getAvailableSnacks
+);
+
+// ======================================
+// Sort Snacks By Price
+// ======================================
+
+router.get(
+    "/sort",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Snacks"),
+    sortSnackByPrice
+);
+
+// ======================================
+// Pagination
+// ======================================
+
+router.get(
+    "/paginate",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Snacks"),
+    paginateSnack
+);
+
+// ======================================
 // Update Snack
-// Super Administrator + Snacks Department Administrator
 // ======================================
 
 router.put(
@@ -55,7 +119,6 @@ router.put(
 
 // ======================================
 // Delete Snack
-// Super Administrator + Snacks Department Administrator
 // ======================================
 
 router.delete(

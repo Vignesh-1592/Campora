@@ -30,7 +30,16 @@ const allowDepartment = require("../middleware/departmentMiddleware");
 router.post(
     "/product-image",
     verifyToken,
-    authorizeRoles("superadmin", "departmentadmin"),
+    authorizeRoles(
+        "superadmin",
+        "departmentadmin"
+    ),
+    allowDepartment(
+        "Food",
+        "Snacks",
+        "Stationery",
+        "Book Depot"
+    ),
     uploadImage.single("image"),
     uploadProductImage
 );
@@ -50,12 +59,16 @@ router.post(
 
 // ======================================
 // View Product Images
-// All Logged-in Users
+// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/product-images",
     verifyToken,
+    authorizeRoles(
+        "superadmin",
+        "departmentadmin"
+    ),
     getProductImages
 );
 
@@ -67,33 +80,26 @@ router.get(
 router.get(
     "/documents",
     verifyToken,
-    authorizeRoles("superadmin", "departmentadmin"),
+    authorizeRoles(
+        "superadmin",
+        "departmentadmin"
+    ),
     allowDepartment("Print Centre"),
     getDocuments
 );
 
 // ======================================
-// Delete Product Image
-// Super Administrator + Department Administrator
+// Delete Uploaded File
+// products OR documents
 // ======================================
 
 router.delete(
-    "/products/:filename",
+    "/:folder/:filename",
     verifyToken,
-    authorizeRoles("superadmin", "departmentadmin"),
-    deleteFile
-);
-
-// ======================================
-// Delete Print Document
-// Super Administrator + Print Department Administrator
-// ======================================
-
-router.delete(
-    "/documents/:filename",
-    verifyToken,
-    authorizeRoles("superadmin", "departmentadmin"),
-    allowDepartment("Print Centre"),
+    authorizeRoles(
+        "superadmin",
+        "departmentadmin"
+    ),
     deleteFile
 );
 

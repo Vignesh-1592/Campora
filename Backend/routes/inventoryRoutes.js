@@ -6,9 +6,13 @@ const {
     addInventory,
     getAllInventory,
     getDepartmentInventory,
+    searchInventory,
+    getInventoryByModule,
+    paginateInventory,
     updateInventory,
     deleteInventory,
-    getLowStockInventory
+    getLowStockInventory,
+    getLowStockCount
 
 } = require("../controllers/inventoryController");
 
@@ -18,7 +22,6 @@ const allowDepartment = require("../middleware/departmentMiddleware");
 
 // ======================================
 // Add Inventory
-// Super Administrator + Department Administrator
 // ======================================
 
 router.post(
@@ -36,19 +39,17 @@ router.post(
 
 // ======================================
 // Get All Inventory
-// Super Administrator Only
 // ======================================
 
 router.get(
-    "/",
+    "/all",
     verifyToken,
     authorizeRoles("superadmin"),
     getAllInventory
 );
 
 // ======================================
-// Get Department Inventory
-// Department Administrator
+// Department Inventory
 // ======================================
 
 router.get(
@@ -65,8 +66,40 @@ router.get(
 );
 
 // ======================================
+// Search Inventory
+// ======================================
+
+router.get(
+    "/search",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    searchInventory
+);
+
+// ======================================
+// Filter Inventory By Module
+// ======================================
+
+router.get(
+    "/module",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    getInventoryByModule
+);
+
+// ======================================
+// Inventory Pagination
+// ======================================
+
+router.get(
+    "/paginate",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    paginateInventory
+);
+
+// ======================================
 // Update Inventory
-// Super Administrator + Department Administrator
 // ======================================
 
 router.put(
@@ -84,7 +117,6 @@ router.put(
 
 // ======================================
 // Delete Inventory
-// Super Administrator + Department Administrator
 // ======================================
 
 router.delete(
@@ -102,20 +134,24 @@ router.delete(
 
 // ======================================
 // Low Stock Inventory
-// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/low-stock",
     verifyToken,
     authorizeRoles("superadmin", "departmentadmin"),
-    allowDepartment(
-        "Food",
-        "Snacks",
-        "Stationery",
-        "Book Depot"
-    ),
     getLowStockInventory
+);
+
+// ======================================
+// Low Stock Count
+// ======================================
+
+router.get(
+    "/low-stock-count",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    getLowStockCount
 );
 
 module.exports = router;

@@ -7,6 +7,9 @@ const {
     getAllOrders,
     getMyOrders,
     getStaffHistory,
+    searchOrders,
+    getOrdersByStatus,
+    paginateOrders,
     updateOrder,
     updateOrderStatus,
     updatePaymentStatus,
@@ -18,10 +21,10 @@ const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
 // ======================================
-// Place Order
-// Student Only
+// Student Routes
 // ======================================
 
+// Place Order
 router.post(
     "/add",
     verifyToken,
@@ -29,23 +32,7 @@ router.post(
     addOrder
 );
 
-// ======================================
-// Get Orders
-// Super Administrator + Department Administrator
-// ======================================
-
-router.get(
-    "/",
-    verifyToken,
-    authorizeRoles("superadmin", "departmentadmin"),
-    getAllOrders
-);
-
-// ======================================
-// Student Order History
-// Student Only
-// ======================================
-
+// My Orders
 router.get(
     "/my-orders",
     verifyToken,
@@ -54,10 +41,18 @@ router.get(
 );
 
 // ======================================
-// Department Order History
-// Super Administrator + Department Administrator
+// Department Admin & Super Admin
 // ======================================
 
+// Get All Orders
+router.get(
+    "/all",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    getAllOrders
+);
+
+// Department History
 router.get(
     "/department-history",
     verifyToken,
@@ -65,11 +60,31 @@ router.get(
     getStaffHistory
 );
 
-// ======================================
-// Update Order
-// Super Administrator + Department Administrator
-// ======================================
+// Search Orders
+router.get(
+    "/search",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    searchOrders
+);
 
+// Filter Orders By Status
+router.get(
+    "/status",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    getOrdersByStatus
+);
+
+// Pagination
+router.get(
+    "/paginate",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    paginateOrders
+);
+
+// Update Order
 router.put(
     "/update/:id",
     verifyToken,
@@ -77,11 +92,7 @@ router.put(
     updateOrder
 );
 
-// ======================================
 // Update Order Status
-// Super Administrator + Department Administrator
-// ======================================
-
 router.put(
     "/status/:id",
     verifyToken,
@@ -89,11 +100,7 @@ router.put(
     updateOrderStatus
 );
 
-// ======================================
 // Update Payment Status
-// Super Administrator + Department Administrator
-// ======================================
-
 router.put(
     "/payment/:id",
     verifyToken,
@@ -101,11 +108,7 @@ router.put(
     updatePaymentStatus
 );
 
-// ======================================
 // Delete Order
-// Super Administrator Only
-// ======================================
-
 router.delete(
     "/delete/:id",
     verifyToken,

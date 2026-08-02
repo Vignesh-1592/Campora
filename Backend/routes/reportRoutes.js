@@ -5,13 +5,17 @@ const {
 
     getTotalRevenue,
     getTodayRevenue,
+    getWeeklyRevenue,
     getMonthlyRevenue,
+    getYearlyRevenue,
     getDashboardSummary,
     getDepartmentRevenue,
     getTotalOrders,
     getOrderStatusStats,
     getPaymentStats,
-    getTopSellingProducts
+    getTopSellingProducts,
+    getCustomDateReport,
+    getModuleReport
 
 } = require("../controllers/reportController");
 
@@ -19,7 +23,7 @@ const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
 // ======================================
-// Revenue APIs
+// Revenue Reports
 // Super Administrator + Department Administrator
 // ======================================
 
@@ -38,15 +42,28 @@ router.get(
 );
 
 router.get(
+    "/weekly-revenue",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    getWeeklyRevenue
+);
+
+router.get(
     "/monthly-revenue",
     verifyToken,
     authorizeRoles("superadmin", "departmentadmin"),
     getMonthlyRevenue
 );
 
+router.get(
+    "/yearly-revenue",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    getYearlyRevenue
+);
+
 // ======================================
 // Dashboard Summary
-// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
@@ -57,8 +74,7 @@ router.get(
 );
 
 // ======================================
-// Orders
-// Super Administrator + Department Administrator
+// Order Reports
 // ======================================
 
 router.get(
@@ -76,8 +92,7 @@ router.get(
 );
 
 // ======================================
-// Payment Statistics
-// Super Administrator + Department Administrator
+// Payment Reports
 // ======================================
 
 router.get(
@@ -89,7 +104,6 @@ router.get(
 
 // ======================================
 // Department Revenue
-// Super Administrator + Department Administrator
 // ======================================
 
 router.get(
@@ -100,8 +114,29 @@ router.get(
 );
 
 // ======================================
+// Module Report
+// ======================================
+
+router.get(
+    "/module-report",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    getModuleReport
+);
+
+// ======================================
+// Custom Date Report
+// ======================================
+
+router.get(
+    "/custom-report",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    getCustomDateReport
+);
+
+// ======================================
 // Top Selling Products
-// Super Administrator + Department Administrator
 // ======================================
 
 router.get(

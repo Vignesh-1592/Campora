@@ -12,14 +12,17 @@ const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
 // ======================================
-// Department Administrator Dashboard
+// Department Dashboard
 // Super Administrator + Department Administrator
 // ======================================
 
 router.get(
     "/department",
     verifyToken,
-    authorizeRoles("superadmin", "departmentadmin"),
+    authorizeRoles(
+        "superadmin",
+        "departmentadmin"
+    ),
     getStaffDashboard
 );
 

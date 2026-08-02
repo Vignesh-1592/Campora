@@ -6,9 +6,12 @@ const {
     createNotification,
     getMyNotifications,
     getAllNotifications,
+    searchNotifications,
+    getNotificationsByModule,
+    getUnreadCount,
     markAsRead,
-    deleteNotification,
-    getUnreadCount
+    markAllAsRead,
+    deleteNotification
 
 } = require("../controllers/notificationController");
 
@@ -17,7 +20,7 @@ const authorizeRoles = require("../middleware/roleMiddleware");
 
 // ======================================
 // Create Notification
-// Super Administrator + Department Administrator
+// Super Admin + Department Admin
 // ======================================
 
 router.post(
@@ -29,7 +32,7 @@ router.post(
 
 // ======================================
 // Get My Notifications
-// All Logged-in Users
+// Student + Department Admin + Super Admin
 // ======================================
 
 router.get(
@@ -45,7 +48,7 @@ router.get(
 
 // ======================================
 // Get All Notifications
-// Super Administrator Only
+// Super Admin Only
 // ======================================
 
 router.get(
@@ -53,6 +56,34 @@ router.get(
     verifyToken,
     authorizeRoles("superadmin"),
     getAllNotifications
+);
+
+// ======================================
+// Search Notifications
+// Super Admin Only
+// ======================================
+
+router.get(
+    "/search",
+    verifyToken,
+    authorizeRoles("superadmin"),
+    searchNotifications
+);
+
+// ======================================
+// Get Notifications By Module
+// All Logged-in Users
+// ======================================
+
+router.get(
+    "/module",
+    verifyToken,
+    authorizeRoles(
+        "student",
+        "departmentadmin",
+        "superadmin"
+    ),
+    getNotificationsByModule
 );
 
 // ======================================
@@ -72,7 +103,7 @@ router.get(
 );
 
 // ======================================
-// Mark Notification as Read
+// Mark Notification As Read
 // All Logged-in Users
 // ======================================
 
@@ -88,9 +119,24 @@ router.put(
 );
 
 // ======================================
+// Mark All Notifications As Read
+// All Logged-in Users
+// ======================================
+
+router.put(
+    "/mark-all-read",
+    verifyToken,
+    authorizeRoles(
+        "student",
+        "departmentadmin",
+        "superadmin"
+    ),
+    markAllAsRead
+);
+
+// ======================================
 // Delete Notification
 // All Logged-in Users
-// Controller validates ownership
 // ======================================
 
 router.delete(

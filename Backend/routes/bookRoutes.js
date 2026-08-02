@@ -5,6 +5,11 @@ const {
 
     addBook,
     getAllBooks,
+    searchBook,
+    getBooksByCategory,
+    getAvailableBooks,
+    sortBooksByPrice,
+    paginateBooks,
     updateBook,
     deleteBook
 
@@ -29,11 +34,10 @@ router.post(
 
 // ======================================
 // Get All Books
-// Super Administrator + Book Department Administrator
 // ======================================
 
 router.get(
-    "/",
+    "/all",
     verifyToken,
     authorizeRoles("superadmin", "departmentadmin"),
     allowDepartment("Book Depot"),
@@ -41,8 +45,68 @@ router.get(
 );
 
 // ======================================
+// Search Book
+// Search by Title & Author
+// ======================================
+
+router.get(
+    "/search",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Book Depot"),
+    searchBook
+);
+
+// ======================================
+// Filter Books By Category
+// ======================================
+
+router.get(
+    "/category",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Book Depot"),
+    getBooksByCategory
+);
+
+// ======================================
+// Get Available Books
+// ======================================
+
+router.get(
+    "/available",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Book Depot"),
+    getAvailableBooks
+);
+
+// ======================================
+// Sort Books By Price
+// ======================================
+
+router.get(
+    "/sort",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Book Depot"),
+    sortBooksByPrice
+);
+
+// ======================================
+// Pagination
+// ======================================
+
+router.get(
+    "/paginate",
+    verifyToken,
+    authorizeRoles("superadmin", "departmentadmin"),
+    allowDepartment("Book Depot"),
+    paginateBooks
+);
+
+// ======================================
 // Update Book
-// Super Administrator + Book Department Administrator
 // ======================================
 
 router.put(
@@ -55,7 +119,6 @@ router.put(
 
 // ======================================
 // Delete Book
-// Super Administrator + Book Department Administrator
 // ======================================
 
 router.delete(
